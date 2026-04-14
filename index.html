@@ -727,7 +727,7 @@
             </div>
 
             <div id="activeVisitorState" class="profile-wrapper">
-                <img id="visPhoto" src="" alt="Visitor Photo" class="visitor-photo" style="display:none;">
+                <img id="visPhoto" alt="Visitor Photo" class="visitor-photo" style="display:none;">
                 <div class="tag-badge" id="visPurpose">--</div>
 
                 <div class="info-row"><span class="info-label">Full Name</span><span class="info-value"
@@ -861,13 +861,17 @@
 
         // Current user session
         let myStation = null;
+        let myDesignation = null;
+        let queueInterval = null;
 
         // --- FACULTY LOGIN AP WORKFLOW ---
         async function handleFacultyLogin(e) {
-            e.preventDefault();
+            if (e) e.preventDefault();
             const email = document.getElementById("facultyUser").value.trim();
             const pass = document.getElementById("facultyPass").value.trim();
             const loginBtn = document.querySelector("#facultyLoginOverlay button[type='submit']");
+
+            if (!email || !pass) return;
 
             const origText = loginBtn.innerHTML;
             loginBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Authenticating...`;
@@ -887,21 +891,24 @@
 
                 const data = await response.json();
 
-                // Fallback extraction mapping for assigned station
+                // Extract designation for the top right badge
+                myDesignation = data.designation || data.data?.designation || data.faculty?.designation || "Faculty";
                 myStation = data.station || data.department || data.data?.station || data.data?.department || data.faculty?.station || data.faculty?.department || "Reception";
 
-                // Success! Set station
+                // Success! Set UI state
                 document.getElementById("facultyLoginOverlay").style.display = "none";
                 document.getElementById("topNav").style.display = "flex";
                 document.getElementById("mainDashboard").style.display = "grid";
 
-                document.getElementById("navStationName").innerHTML = `<i class="fas fa-id-badge"></i> ${myStation} Dashboard`;
+                document.getElementById("navStationName").innerHTML = `<i class="fas fa-user-tie"></i> ${myDesignation}`;
 
                 // Initiate Queue tracking
                 renderQueue();
-                setInterval(renderQueue, 10000);
+                if (queueInterval) clearInterval(queueInterval);
+                queueInterval = setInterval(renderQueue, 10000);
 
             } catch (error) {
+                console.error("Login Error:", error);
                 document.getElementById("loginError").style.display = "block";
             } finally {
                 loginBtn.innerHTML = origText;
@@ -915,33 +922,49 @@
 
         async function loadQueue() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/visitors/`, {
+                if (!API_BASE_URL || API_BASE_URL.includes("undefined")) throw new Error("Base URL invalid");
+
+                const response = await fetch(`${API_BASE_URL}/api/visitors/active`, {
                     headers: { 'ngrok-skip-browser-warning': '69420' }
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    let list = data;
-                    if (data.data) list = data.data;
-                    if (data.visitors) list = data.visitors;
+                    let list = data.data || data.visitors || data;
                     currentQueue = Array.isArray(list) ? list : [];
-                } else {
-                    currentQueue = [];
+                    return true; // Success
                 }
+                return false;
             } catch (e) {
-                console.error("API fetch failed, falling back to local storage.", e);
+                console.warn("API fetch failed, checking local cache.", e.message);
                 try {
                     const dataStr = localStorage.getItem("davQueue");
-                    currentQueue = dataStr ? JSON.parse(dataStr) : [];
-                } catch (err) {
-                    currentQueue = [];
-                }
+                    if (dataStr) {
+                        currentQueue = JSON.parse(dataStr);
+                        return true;
+                    }
+                } catch (err) { }
+                return false;
             }
         }
 
         async function renderQueue() {
-            if (!myStation) return; // Prevent render if not logged in
+            if (!myStation) return;
 
-            await loadQueue();
+            // Save currently selected visitor's PIN robustly
+            let activePin = null;
+            if (selectedVisitorIndex !== -1 && currentQueue[selectedVisitorIndex]) {
+                const v = currentQueue[selectedVisitorIndex];
+                activePin = String(v.pin || v.PIN || v.otp || v.code || v.visitorPin || v.id || v._id || "").trim();
+            }
+
+            const fetchSuccess = await loadQueue();
+
+            // If fetch TOTALLY failed and we have no local data, don't clear the screen
+            if (!fetchSuccess && currentQueue.length === 0) {
+                console.log("No data available to render");
+                return;
+            }
+
             const queueListEl = document.getElementById("queueList");
             const countEl = document.getElementById("queueCount");
 
@@ -949,27 +972,43 @@
             let count = 0;
 
             // Sort queue by timestamp (oldest first)
-            currentQueue.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            currentQueue.sort((a, b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0));
 
             currentQueue.forEach((visitor, index) => {
-                count++;
-                const date = new Date(visitor.timestamp);
-                const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
                 const item = document.createElement("div");
                 item.className = "queue-item";
                 item.onclick = () => openPinOverlay(index, visitor.name);
 
                 let avatarHtml = `<div class="q-avatar"><i class="fas fa-user"></i></div>`;
-                if (visitor.photo) {
+                if (visitor.photo && String(visitor.photo).trim().length > 5) {
                     avatarHtml = `<div class="q-avatar"><img src="${visitor.photo}" alt="img"></div>`;
                 }
+
+                let currentStation = 'Reception';
+                if (visitor.path && Array.isArray(visitor.path) && visitor.path.length > 0) {
+                    const lastPath = visitor.path[visitor.path.length - 1];
+                    currentStation = typeof lastPath === 'string' ? lastPath : (lastPath.location || 'Reception');
+                } else if (visitor.currentStation) {
+                    currentStation = visitor.currentStation;
+                }
+
+                // FILTER: Only show visitors whose current station matches the faculty's designation
+                // Using loose comparison to handle potential case/trim differences
+                const facultyTarget = String(myDesignation || "").toLowerCase().trim();
+                const visitorTarget = String(currentStation || "").toLowerCase().trim();
+
+                if (facultyTarget !== visitorTarget) {
+                    return; // Skip this visitor
+                }
+
+                count++;
 
                 item.innerHTML = `
                     ${avatarHtml}
                     <div class="q-info">
                         <h4>${visitor.name}</h4>
-                        <p>${visitor.purpose} • Wait since ${timeStr} • At: ${visitor.currentStation || 'Reception'}</p>
+                        <p>${visitor.purpose} • At: ${currentStation}</p>
                     </div>
                 `;
                 queueListEl.appendChild(item);
@@ -981,8 +1020,22 @@
                 queueListEl.innerHTML = `<div class="empty-queue"><i class="fas fa-coffee" style="font-size: 24px; margin-bottom:12px; opacity:0.5;"></i><br>Queue is currently empty.</div>`;
             }
 
-            // Always reset active viewer when queue refreshes
-            hideActiveProfile();
+            // Preserve active viewer
+            if (activePin && activePin !== "") {
+                const newIndex = currentQueue.findIndex(v => {
+                    const p = String(v.pin || v.PIN || v.otp || v.code || v.visitorPin || v.id || v._id || "").trim();
+                    return p === activePin;
+                });
+
+                if (newIndex !== -1) {
+                    selectedVisitorIndex = newIndex;
+                } else {
+                    selectedVisitorIndex = -1;
+                    hideActiveProfile();
+                }
+            } else {
+                hideActiveProfile();
+            }
         }
 
         // --- 4. PIN VERIFICATION WORKFLOW ---
@@ -994,9 +1047,11 @@
             document.getElementById("inputPin").focus();
         }
 
-        function closePinOverlay() {
+        function closePinOverlay(resetIndex = true) {
             document.getElementById("pinOverlay").classList.remove("active");
-            selectedVisitorIndex = -1;
+            if (resetIndex) {
+                selectedVisitorIndex = -1;
+            }
         }
 
         function submitPin() {
@@ -1005,7 +1060,7 @@
 
             if (enteredPin === visitor.pin) {
                 // Success! Unlock dashboard.
-                closePinOverlay();
+                closePinOverlay(false);
                 showActiveProfile(visitor);
             } else {
                 document.getElementById("pinError").style.display = "block";
@@ -1023,10 +1078,11 @@
             document.getElementById("visEmail").innerText = visitor.email;
             document.getElementById("visPurpose").innerText = visitor.purpose;
 
-            if (visitor.photo) {
+            if (visitor.photo && visitor.photo.trim() !== "") {
                 document.getElementById("visPhoto").src = visitor.photo;
                 document.getElementById("visPhoto").style.display = "block";
             } else {
+                document.getElementById("visPhoto").removeAttribute("src");
                 document.getElementById("visPhoto").style.display = "none";
             }
         }
