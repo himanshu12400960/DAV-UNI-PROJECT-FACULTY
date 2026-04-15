@@ -218,6 +218,31 @@
             display: none;
         }
 
+        /* ─── LOGOUT BUTTON ───────────────────────── */
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 20px;
+            background: transparent;
+            border: 1.5px solid rgba(139, 26, 26, 0.3);
+            border-radius: 8px;
+            color: var(--maroon);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-logout:hover {
+            background: var(--maroon);
+            color: white;
+            border-color: var(--maroon);
+            box-shadow: 0 4px 14px rgba(139, 26, 26, 0.25);
+            transform: translateY(-1px);
+        }
+
         /* ─── NAV ───────────────────────── */
         nav {
             position: sticky;
@@ -654,6 +679,211 @@
             border: none;
             cursor: pointer;
         }
+
+        /* ─── LOGOUT CONFIRM OVERLAY ───────────────────────── */
+        .logout-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+        }
+
+        .logout-overlay.active {
+            display: flex;
+            animation: fadeInOverlay 0.2s ease;
+        }
+
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        .logout-box {
+            background: white;
+            padding: 44px 40px 36px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+            width: 100%;
+            max-width: 400px;
+            animation: slideUpCard 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes slideUpCard {
+            from { opacity: 0; transform: translateY(24px) scale(0.96); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .logout-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+            background: rgba(139, 26, 26, 0.08);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: var(--maroon);
+        }
+
+        .logout-box h2 {
+            font-size: 22px;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .logout-box p {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .logout-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-logout-cancel {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1.5px solid #E2E8F0;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-logout-cancel:hover {
+            background: #F1F5F9;
+            border-color: #CBD5E1;
+            color: var(--text-main);
+        }
+
+        .btn-logout-confirm {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background: var(--maroon);
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-logout-confirm:hover {
+            background: var(--maroon-light);
+            box-shadow: 0 6px 20px rgba(139, 26, 26, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* ─── SUCCESS / ERROR TOAST OVERLAY ───────────────────────── */
+        .toast-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1800;
+        }
+
+        .toast-overlay.active {
+            display: flex;
+            animation: fadeInOverlay 0.18s ease;
+        }
+
+        .toast-box {
+            background: white;
+            padding: 44px 40px 36px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 380px;
+            animation: slideUpCard 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .toast-icon {
+            width: 68px;
+            height: 68px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .toast-icon.success { background: rgba(16, 185, 129, 0.1); color: #10B981; }
+        .toast-icon.error   { background: rgba(239,  68,  68, 0.1); color: #EF4444; }
+
+        .toast-box h2 {
+            font-size: 21px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .toast-box p {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+
+        .toast-progress {
+            height: 4px;
+            border-radius: 4px;
+            background: #E2E8F0;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .toast-progress-bar {
+            height: 100%;
+            border-radius: 4px;
+            background: #10B981;
+            width: 100%;
+            transition: width 3s linear;
+        }
+
+        .toast-progress-bar.error { background: #EF4444; }
+
+        .btn-toast-ok {
+            padding: 13px 36px;
+            border-radius: 12px;
+            border: none;
+            background: var(--maroon);
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-toast-ok:hover {
+            background: var(--maroon-light);
+            box-shadow: 0 6px 20px rgba(139, 26, 26, 0.3);
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 
@@ -698,8 +928,13 @@
             <div class="nav-logo-divider"></div>
             <img src="https://davuniversity.org/src2/img/basic/DAVU.png?v=1" class="logo-text" alt="DAV University">
         </div>
-        <div class="nav-station-badge" id="navStationName">
-            <i class="fas fa-id-badge"></i> Loading Station...
+        <div style="display:flex; align-items:center; gap:16px;">
+            <div class="nav-station-badge" id="navStationName">
+                <i class="fas fa-id-badge"></i> Loading Station...
+            </div>
+            <button class="btn-logout" id="logoutBtn" onclick="handleLogout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
         </div>
     </nav>
 
@@ -802,6 +1037,51 @@
             <button class="pin-box-cancel" onclick="closePinOverlay()">Cancel</button>
             <p id="pinError" style="color: #EF4444; margin-top: 12px; font-size: 13px; display: none;">Incorrect PIN
                 match.</p>
+        </div>
+    </div>
+
+    <!-- LOGOUT CONFIRM OVERLAY -->
+    <div id="logoutOverlay" class="logout-overlay">
+        <div class="logout-box">
+            <div class="logout-icon">
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+            <h2>Log Out?</h2>
+            <p>You are about to end your session.<br>The queue will stop refreshing until you log back in.</p>
+            <div class="logout-actions">
+                <button class="btn-logout-cancel" onclick="cancelLogout()">Stay Logged In</button>
+                <button class="btn-logout-confirm" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Log Out</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUCCESS / ERROR TOAST OVERLAY -->
+    <div id="toastOverlay" class="toast-overlay">
+        <div class="toast-box">
+            <div class="toast-icon success" id="toastIcon">
+                <i class="fas fa-check" id="toastIconClass"></i>
+            </div>
+            <h2 id="toastTitle">Success</h2>
+            <p id="toastMessage">Action completed.</p>
+            <div class="toast-progress">
+                <div class="toast-progress-bar" id="toastBar"></div>
+            </div>
+            <button class="btn-toast-ok" onclick="closeToast()">OK</button>
+        </div>
+    </div>
+
+    <!-- EXIT VISITOR CONFIRM OVERLAY -->
+    <div id="exitOverlay" class="logout-overlay">
+        <div class="logout-box">
+            <div class="logout-icon" style="background: rgba(239,68,68,0.1); color: #EF4444;">
+                <i class="fas fa-user-times"></i>
+            </div>
+            <h2>Exit Visitor?</h2>
+            <p>This will remove the visitor from <strong>all queues</strong> and end their campus session permanently.</p>
+            <div class="logout-actions">
+                <button class="btn-logout-cancel" onclick="cancelExitVisitor()">Cancel</button>
+                <button class="btn-logout-confirm" style="background:#EF4444;" onmouseover="this.style.background='#DC2626'" onmouseout="this.style.background='#EF4444'" onclick="doExitVisitor()"><i class="fas fa-user-times"></i> Exit Visitor</button>
+            </div>
         </div>
     </div>
 
@@ -1138,14 +1418,14 @@
                 display.style.color = "var(--text-main)";
                 document.getElementById("nextStation").value = "";
 
-                alert(`Visitor routed to ${nextStation} Queue successfully.`);
+                showToast('success', 'Visitor Routed!', `Successfully sent to <strong>${nextStation}</strong> queue.`);
                 selectedVisitorIndex = -1;
 
                 // Triggers an API fetch to sync UI with backend strictly
                 await renderQueue();
             } catch (error) {
                 console.error("Routing error:", error);
-                alert("Could not update the visitor routing path on the server.\n" + error.message);
+                showToast('error', 'Routing Failed', 'Could not update the routing path on the server. Please try again.');
             } finally {
                 submitBtn.innerHTML = origHtml;
                 submitBtn.disabled = false;
@@ -1154,31 +1434,117 @@
 
         async function exitVisitor() {
             if (selectedVisitorIndex === -1) return;
+            // Show custom exit confirmation overlay
+            document.getElementById('exitOverlay').classList.add('active');
+        }
 
-            if (confirm("Are you sure you want to EXIT this visitor from campus? They will be removed from all queues.")) {
+        async function doExitVisitor() {
+            document.getElementById('exitOverlay').classList.remove('active');
 
-                const visitor = currentQueue[selectedVisitorIndex];
-                const pin = visitor.pin;
+            const visitor = currentQueue[selectedVisitorIndex];
+            const pin = visitor.pin;
 
-                try {
-                    // Update backend status to COMPLETED
-                    await fetch(`${API_BASE_URL}/api/visitors/status/${pin}`, {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': '69420' },
-                        body: JSON.stringify({ status: "COMPLETED" })
-                    });
-                } catch (e) {
-                    console.warn("API status update failed, continuing with local cleanup.");
-                }
-
-                // Remove from local array totally
-                currentQueue.splice(selectedVisitorIndex, 1);
-                saveQueueToStorage();
-
-                alert("Visitor Exit complete.");
-                selectedVisitorIndex = -1;
-                renderQueue();
+            try {
+                // Update backend status to COMPLETED
+                await fetch(`${API_BASE_URL}/api/visitors/status/${pin}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': '69420' },
+                    body: JSON.stringify({ status: "COMPLETED" })
+                });
+            } catch (e) {
+                console.warn("API status update failed, continuing with local cleanup.");
             }
+
+            // Remove from local array totally
+            currentQueue.splice(selectedVisitorIndex, 1);
+            saveQueueToStorage();
+
+            showToast('success', 'Visitor Exited', 'The visitor has been removed from all queues and their session is closed.');
+            selectedVisitorIndex = -1;
+            renderQueue();
+        }
+
+        function cancelExitVisitor() {
+            document.getElementById('exitOverlay').classList.remove('active');
+        }
+
+        // --- 8. TOAST HELPER ---
+        let _toastTimer = null;
+
+        function showToast(type, title, message) {
+            const overlay  = document.getElementById('toastOverlay');
+            const icon     = document.getElementById('toastIcon');
+            const iconEl   = document.getElementById('toastIconClass');
+            const bar      = document.getElementById('toastBar');
+
+            document.getElementById('toastTitle').innerText   = title;
+            document.getElementById('toastMessage').innerHTML = message;
+
+            icon.className  = `toast-icon ${type}`;
+            iconEl.className = type === 'success' ? 'fas fa-check' : 'fas fa-exclamation-triangle';
+            bar.className   = `toast-progress-bar${type === 'error' ? ' error' : ''}`;
+
+            overlay.classList.add('active');
+
+            // Reset then animate the progress bar
+            bar.style.transition = 'none';
+            bar.style.width = '100%';
+            setTimeout(() => {
+                bar.style.transition = 'width 3s linear';
+                bar.style.width = '0%';
+            }, 30);
+
+            // Auto-dismiss after 3s
+            if (_toastTimer) clearTimeout(_toastTimer);
+            _toastTimer = setTimeout(closeToast, 3000);
+        }
+
+        function closeToast() {
+            document.getElementById('toastOverlay').classList.remove('active');
+            if (_toastTimer) { clearTimeout(_toastTimer); _toastTimer = null; }
+        }
+
+        // --- 7. LOGOUT ---
+        function handleLogout() {
+            // Show custom confirmation overlay instead of browser dialog
+            document.getElementById("logoutOverlay").classList.add("active");
+        }
+
+        function cancelLogout() {
+            document.getElementById("logoutOverlay").classList.remove("active");
+        }
+
+        function doLogout() {
+            // Close the overlay first
+            document.getElementById("logoutOverlay").classList.remove("active");
+
+            // Stop background queue polling
+            if (queueInterval) {
+                clearInterval(queueInterval);
+                queueInterval = null;
+            }
+
+            // Reset session state
+            myStation = null;
+            myDesignation = null;
+            currentQueue = [];
+            selectedVisitorIndex = -1;
+
+            // Clear profile display
+            hideActiveProfile();
+            document.getElementById("queueList").innerHTML = "";
+            document.getElementById("queueCount").innerText = "0";
+            document.getElementById("navStationName").innerHTML = `<i class="fas fa-id-badge"></i> Loading Station...`;
+
+            // Clear login fields
+            document.getElementById("facultyUser").value = "";
+            document.getElementById("facultyPass").value = "";
+            document.getElementById("loginError").style.display = "none";
+
+            // Hide dashboard, show login
+            document.getElementById("topNav").style.display = "none";
+            document.getElementById("mainDashboard").style.display = "none";
+            document.getElementById("facultyLoginOverlay").style.display = "flex";
         }
     </script>
 </body>
